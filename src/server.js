@@ -5,6 +5,7 @@ dotenv.config({ path: ".env.local" }); // Specify .env file explicitly
 import express from "express";
 import { connectDB } from "./lib/db.js";
 import authRoutes from "./routes/auth.route.js";
+import chatRoutes from "./routes/chat.route.js";
 import userRoutes from "./routes/user.route.js";
 
 const app = express();
@@ -19,6 +20,9 @@ app.use("/api/auth", authRoutes);
 
 // routes for user-related operations
 app.use("/api/users", userRoutes);
+
+// routes for chat-related operations
+app.use("/api/chat", chatRoutes);
 
 // Connect to MongoDB and start the server
 connectDB()
