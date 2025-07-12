@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import { upsertStreamUser } from "../lib/stream.js";
 import User from "../models/User.js";
 
-// Signup function to register a new user
+// Signup controller for user registration
 export async function signup(req, res) {
   const { email, password, fullName } = req.body;
 
@@ -34,7 +34,6 @@ export async function signup(req, res) {
     const idx = Math.floor(Math.random() * 100) + 1; // generate a num between 1-100
     const randomAvatar = `https://avatar.iran.liara.run/public/${idx}.png`;
 
-    // Create a new user
     const newUser = await User.create({
       email,
       fullName,
@@ -42,7 +41,6 @@ export async function signup(req, res) {
       profilePic: randomAvatar,
     });
 
-    // If Stream is enabled, create a Stream user
     try {
       await upsertStreamUser({
         id: newUser._id.toString(),
@@ -54,7 +52,6 @@ export async function signup(req, res) {
       console.log("Error creating Stream user:", error);
     }
 
-    // Generate JWT token
     const token = jwt.sign(
       { userId: newUser._id },
       process.env.JWT_SECRET_KEY,
@@ -72,12 +69,12 @@ export async function signup(req, res) {
 
     res.status(201).json({ success: true, user: newUser });
   } catch (error) {
-    console.error("Error during signup:", error);
-    res.status(500).json({ message: "Internal server error" });
+    console.log("Error in signup controller", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 }
 
-// Login function to authenticate a user
+// Login controller for user authentication
 export async function login(req, res) {
   try {
     const { email, password } = req.body;
@@ -112,8 +109,73 @@ export async function login(req, res) {
   }
 }
 
-// Logout function to clear the JWT cookie
+// Logout controller to clear the JWT cookie
 export function logout(req, res) {
   res.clearCookie("jwt");
   res.status(200).json({ success: true, message: "Logout successful" });
+}
+
+// Onboarding controller to update user profile after registration and stream user
+export async function onboard(req, res) {
+  try {
+    const userId = req.user._id;
+
+    const { fullName, bio, nativeLanguage, learningLanguage, location } =
+      req.body;
+
+    // Validate input
+    if (
+      !fullName ||
+      !bio ||
+      !nativeLanguage ||
+      !learningLanguage ||
+      !location
+    ) {
+      return res.status(400).json({
+        message: "All fields are required",
+        missingFields: [
+          !fullName && "fullName",
+          !bio && "bio",
+          !nativeLanguage && "nativeLanguage",
+          !learningLanguage && "learningLanguage",
+          !location && "location",
+        ].filter(Boolean),
+      });
+    }
+
+    // Find the user and update their profile
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        ...req.body,
+        isOnboarded: true,
+      },
+      { new: true }
+    );
+
+    if (!updatedUser)
+      return res.status(404).json({ message: "User not found" });
+
+    // Update Stream user after onboarding
+    try {
+      await upsertStreamUser({
+        id: updatedUser._id.toString(),
+        name: updatedUser.fullName,
+        image: updatedUser.profilePic || "",
+      });
+      console.log(
+        `Stream user updated after onboarding for ${updatedUser.fullName}`
+      );
+    } catch (streamError) {
+      console.log(
+        "Error updating Stream user during onboarding:",
+        streamError.message
+      );
+    }
+
+    res.status(200).json({ success: true, user: updatedUser });
+  } catch (error) {
+    console.error("Onboarding error:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 }

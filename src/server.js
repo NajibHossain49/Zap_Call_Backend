@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config({ path: ".env.local" }); // Specify .env file explicitly
+import cookieParser from "cookie-parser";
 
 import express from "express";
 import { connectDB } from "./lib/db.js";
@@ -10,6 +11,7 @@ const PORT = process.env.PORT || 3000;
 
 // middlewares
 app.use(express.json());
+app.use(cookieParser());
 
 // routes for authentication
 app.use("/api/auth", authRoutes);
