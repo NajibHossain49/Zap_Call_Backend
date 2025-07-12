@@ -128,6 +128,7 @@ export async function acceptFriendRequest(req, res) {
   }
 }
 
+// Get all friend requests for the current user
 export async function getFriendRequests(req, res) {
   try {
     const incomingReqs = await FriendRequest.find({
@@ -150,6 +151,7 @@ export async function getFriendRequests(req, res) {
   }
 }
 
+// Get all outgoing friend requests for the current user
 export async function getOutgoingFriendReqs(req, res) {
   try {
     const outgoingRequests = await FriendRequest.find({
