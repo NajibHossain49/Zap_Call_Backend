@@ -8,10 +8,13 @@ import authRoutes from "./routes/auth.route.js";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Your middleware, routes, etc.
+// middlewares
 app.use(express.json());
+
+// routes for authentication
 app.use("/api/auth", authRoutes);
 
+// Connect to MongoDB and start the server
 connectDB()
   .then(() => {
     app.listen(PORT, () => {
