@@ -1,4 +1,5 @@
 import cookieParser from "cookie-parser";
+import cors from "cors";
 import dotenv from "dotenv";
 dotenv.config({ path: ".env.local" }); // Specify .env file explicitly
 
@@ -12,6 +13,12 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // middlewares
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true, // allow credentials (cookies, authorization headers, etc.)
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 
