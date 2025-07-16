@@ -15,7 +15,11 @@ const PORT = process.env.PORT || 3000;
 // middlewares
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: [
+      // List of allowed origins
+      "http://localhost:5173",
+      "https://stellular-flan-1bcb77.netlify.app",
+    ],
     credentials: true, // allow credentials (cookies, authorization headers, etc.)
   })
 );
