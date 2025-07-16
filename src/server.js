@@ -16,8 +16,9 @@ app.use(
   cors({
     origin: [
       // List of allowed origins
-      "http://localhost:5173",
-      "https://stellular-flan-1bcb77.netlify.app",
+      "http://localhost:5173", // Local development URL
+      "https://zapcall.netlify.app", // Netlify Deployment URL
+      "https://zapcall-two.vercel.app" // Vercel Deployment URL
     ],
     credentials: true, // allow credentials (cookies, authorization headers, etc.)
   })
